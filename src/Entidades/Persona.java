@@ -6,27 +6,30 @@ import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 
 @Getter
-@SuperBuilder
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@SuperBuilder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Persona implements Serializable {
+    @NonNull
+    final String nombre;
+    @NonNull
+    final String apellido;
     @EqualsAndHashCode.Include
-    String dni;
-    String nombre;
-    String apellido;
-    @NonNull LocalDate fechaNacimiento;
-    @NonNull TipoSangre tipoSangre;
+    @NonNull
+    final String dni;
+    @NonNull
+    final LocalDate fechaNacimiento;
+    @NonNull
+    final TipoSangre tipoSangre;
 
     public String getNombreCompleto() {
         return nombre + " " + apellido;
     }
 
     public int getEdad() {
-        return Period.between(fechaNacimiento, LocalDate.now()).getYears();
+        return LocalDate.now().getYear() - fechaNacimiento.getYear();
     }
 }

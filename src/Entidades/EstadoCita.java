@@ -3,8 +3,8 @@ package Entidades;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
+@Getter
 public enum EstadoCita {
     PROGRAMADA("Programada"),
     EN_CURSO("En Curso"),

@@ -1,13 +1,16 @@
 import Entidades.*;
+import Servicio.CitaException;
+import Servicio.CitaManager;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
-
     public static void main(String[] args) {
         System.out.println("===== SISTEMA DE GESTIÓN HOSPITALARIA =====\n");
 
@@ -51,12 +54,25 @@ public class Main {
         System.out.println("Inicializando hospital y departamentos...");
 
         // Crear hospital principal
-        Hospital hospital = new Hospital("Hospital Central", "Av. Libertador 1234", "011-4567-8901");
+        Hospital hospital = Hospital.builder()
+                .nombre("Hospital Central")
+                .direccion("Av. Libertador 1234")
+                .telefono("011-4567-8901")
+                .build();
 
         // Crear departamentos especializados
-        Departamento cardiologia = new Departamento("Cardiología", EspecialidadMedica.CARDIOLOGIA);
-        Departamento pediatria = new Departamento("Pediatría", EspecialidadMedica.PEDIATRIA);
-        Departamento traumatologia = new Departamento("Traumatología", EspecialidadMedica.TRAUMATOLOGIA);
+        Departamento cardiologia = Departamento.builder()
+                .nombre("Cardiología")
+                .especialidad(EspecialidadMedica.CARDIOLOGIA)
+                .build();
+        Departamento pediatria = Departamento.builder()
+                .nombre("Pediatría")
+                .especialidad(EspecialidadMedica.PEDIATRIA)
+                .build();
+        Departamento traumatologia = Departamento.builder()
+                .nombre("Traumatología")
+                .especialidad(EspecialidadMedica.TRAUMATOLOGIA)
+                .build();
 
         // Asignar departamentos al hospital
         hospital.agregarDepartamento(cardiologia);
@@ -70,7 +86,8 @@ public class Main {
         return hospital;
     }
 
-    private static void crearSalasPorDepartamento(Departamento cardiologia, Departamento pediatria, Departamento traumatologia) {
+    private static void crearSalasPorDepartamento(Departamento cardiologia, Departamento pediatria,
+            Departamento traumatologia) {
         // Salas de Cardiología
         cardiologia.crearSala("CARD-101", "Consultorio");
         cardiologia.crearSala("CARD-102", "Quirófano");
@@ -88,17 +105,35 @@ public class Main {
         List<Medico> medicos = new ArrayList<>();
 
         // Crear médicos especialistas
-        Medico cardiologo = new Medico("Carlos", "González", "12345678",
-                LocalDate.of(1975, 5, 15), TipoSangre.A_POSITIVO,
-                "MP-12345", EspecialidadMedica.CARDIOLOGIA);
+        Medico cardiologo = Medico.builder()
+                .nombre("Carlos")
+                .apellido("González")
+                .dni("12345678")
+                .fechaNacimiento(LocalDate.of(1975, 5, 15))
+                .tipoSangre(TipoSangre.A_POSITIVO)
+                .matricula(new Matricula("MP-12345"))
+                .especialidad(EspecialidadMedica.CARDIOLOGIA)
+                .build();
 
-        Medico pediatra = new Medico("Ana", "Martínez", "23456789",
-                LocalDate.of(1980, 8, 22), TipoSangre.O_NEGATIVO,
-                "MP-23456", EspecialidadMedica.PEDIATRIA);
+        Medico pediatra = Medico.builder()
+                .nombre("Ana")
+                .apellido("Martínez")
+                .dni("23456789")
+                .fechaNacimiento(LocalDate.of(1980, 8, 22))
+                .tipoSangre(TipoSangre.O_NEGATIVO)
+                .matricula(new Matricula("MP-23456"))
+                .especialidad(EspecialidadMedica.PEDIATRIA)
+                .build();
 
-        Medico traumatologo = new Medico("Luis", "Rodríguez", "34567890",
-                LocalDate.of(1978, 3, 10), TipoSangre.B_POSITIVO,
-                "MP-34567", EspecialidadMedica.TRAUMATOLOGIA);
+        Medico traumatologo = Medico.builder()
+                .nombre("Luis")
+                .apellido("Rodríguez")
+                .dni("34567890")
+                .fechaNacimiento(LocalDate.of(1978, 3, 10))
+                .tipoSangre(TipoSangre.B_POSITIVO)
+                .matricula(new Matricula("MP-34567"))
+                .especialidad(EspecialidadMedica.TRAUMATOLOGIA)
+                .build();
 
         // Asignar médicos a sus departamentos correspondientes
         for (Departamento dep : hospital.getDepartamentos()) {
@@ -128,17 +163,35 @@ public class Main {
         List<Paciente> pacientes = new ArrayList<>();
 
         // Crear pacientes con diferentes perfiles
-        Paciente pacienteCardiaco = new Paciente("María", "López", "11111111",
-                LocalDate.of(1985, 12, 5), TipoSangre.A_POSITIVO,
-                "011-1111-1111", "Calle Falsa 123");
+        Paciente pacienteCardiaco = Paciente.builder()
+                .nombre("María")
+                .apellido("López")
+                .dni("11111111")
+                .fechaNacimiento(LocalDate.of(1985, 12, 5))
+                .tipoSangre(TipoSangre.A_POSITIVO)
+                .telefono("011-1111-1111")
+                .direccion("Calle Falsa 123")
+                .build();
 
-        Paciente pacientePediatrico = new Paciente("Pedro", "García", "22222222",
-                LocalDate.of(2010, 6, 15), TipoSangre.O_POSITIVO,
-                "011-2222-2222", "Av. Siempreviva 456");
+        Paciente pacientePediatrico = Paciente.builder()
+                .nombre("Pedro")
+                .apellido("García")
+                .dni("22222222")
+                .fechaNacimiento(LocalDate.of(2010, 6, 15))
+                .tipoSangre(TipoSangre.O_POSITIVO)
+                .telefono("011-2222-2222")
+                .direccion("Av. Siempreviva 456")
+                .build();
 
-        Paciente pacienteTraumatologico = new Paciente("Elena", "Fernández", "33333333",
-                LocalDate.of(1992, 9, 28), TipoSangre.AB_NEGATIVO,
-                "011-3333-3333", "Belgrano 789");
+        Paciente pacienteTraumatologico = Paciente.builder()
+                .nombre("Elena")
+                .apellido("Fernández")
+                .dni("33333333")
+                .fechaNacimiento(LocalDate.of(1992, 9, 28))
+                .tipoSangre(TipoSangre.AB_NEGATIVO)
+                .telefono("011-3333-3333")
+                .direccion("Belgrano 789")
+                .build();
 
         // Registrar pacientes en el hospital
         hospital.agregarPaciente(pacienteCardiaco);
@@ -156,7 +209,8 @@ public class Main {
         return pacientes;
     }
 
-    private static void configurarHistoriasClinicas(Paciente pacienteCardiaco, Paciente pacientePediatrico, Paciente pacienteTraumatologico) {
+    private static void configurarHistoriasClinicas(Paciente pacienteCardiaco, Paciente pacientePediatrico,
+            Paciente pacienteTraumatologico) {
         // Historia clínica del paciente cardíaco
         pacienteCardiaco.getHistoriaClinica().agregarDiagnostico("Hipertensión arterial");
         pacienteCardiaco.getHistoriaClinica().agregarTratamiento("Enalapril 10mg");
@@ -174,7 +228,8 @@ public class Main {
 
     // ===== GESTIÓN DE CITAS =====
 
-    private static void programarCitas(CitaManager citaManager, List<Medico> medicos, List<Paciente> pacientes, Hospital hospital) throws CitaException {
+    private static void programarCitas(CitaManager citaManager, List<Medico> medicos, List<Paciente> pacientes,
+            Hospital hospital) throws CitaException {
         System.out.println("Programando citas médicas...");
 
         // Obtener salas por especialidad
@@ -189,8 +244,7 @@ public class Main {
                 obtenerMedicoPorEspecialidad(medicos, EspecialidadMedica.CARDIOLOGIA),
                 salasPorEspecialidad.get(EspecialidadMedica.CARDIOLOGIA),
                 fechaBase.withHour(10).withMinute(0),
-                new BigDecimal("150000.00")
-        );
+                new BigDecimal("150000.00"));
         citaCardiologica.setObservaciones("Paciente con antecedentes de hipertensión");
         citaCardiologica.setEstado(EstadoCita.COMPLETADA);
 
@@ -200,8 +254,7 @@ public class Main {
                 obtenerMedicoPorEspecialidad(medicos, EspecialidadMedica.PEDIATRIA),
                 salasPorEspecialidad.get(EspecialidadMedica.PEDIATRIA),
                 fechaBase.plusDays(1).withHour(14).withMinute(30),
-                new BigDecimal("80000.00")
-        );
+                new BigDecimal("80000.00"));
         citaPediatrica.setObservaciones("Control de rutina - vacunas");
         citaPediatrica.setEstado(EstadoCita.EN_CURSO);
 
@@ -211,8 +264,7 @@ public class Main {
                 obtenerMedicoPorEspecialidad(medicos, EspecialidadMedica.TRAUMATOLOGIA),
                 salasPorEspecialidad.get(EspecialidadMedica.TRAUMATOLOGIA),
                 fechaBase.plusDays(2).withHour(9).withMinute(15),
-                new BigDecimal("120000.00")
-        );
+                new BigDecimal("120000.00"));
         citaTraumatologica.setObservaciones("Seguimiento post-fractura");
 
         System.out.println("Programadas 3 citas médicas exitosamente\n");
@@ -279,7 +331,8 @@ public class Main {
         for (Paciente paciente : hospital.getPacientes()) {
             System.out.println(paciente);
             HistoriaClinica historia = paciente.getHistoriaClinica();
-            System.out.println("  Historia: " + historia.getNumeroHistoria() + " | Edad: " + paciente.getEdad() + " años");
+            System.out.println(
+                    "  Historia: " + historia.getNumeroHistoria() + " | Edad: " + paciente.getEdad() + " años");
 
             if (!historia.getDiagnosticos().isEmpty()) {
                 System.out.println("  Diagnósticos: " + historia.getDiagnosticos());
@@ -315,7 +368,8 @@ public class Main {
 
     // ===== PERSISTENCIA DE DATOS =====
 
-    private static void probarPersistencia(CitaManager citaManager, List<Paciente> pacientes, List<Medico> medicos, Hospital hospital) {
+    private static void probarPersistencia(CitaManager citaManager, List<Paciente> pacientes, List<Medico> medicos,
+            Hospital hospital) {
         System.out.println("===== PRUEBA DE PERSISTENCIA =====");
 
         try {
@@ -375,7 +429,8 @@ public class Main {
 
     // ===== PRUEBAS DE VALIDACIÓN =====
 
-    private static void ejecutarPruebasValidacion(CitaManager citaManager, List<Medico> medicos, List<Paciente> pacientes, Hospital hospital) {
+    private static void ejecutarPruebasValidacion(CitaManager citaManager, List<Medico> medicos,
+            List<Paciente> pacientes, Hospital hospital) {
         System.out.println("===== PRUEBAS DE VALIDACIÓN =====");
 
         Paciente pacientePrueba = pacientes.get(0);
@@ -394,7 +449,8 @@ public class Main {
         System.out.println();
     }
 
-    private static void probarValidacionFechaPasado(CitaManager citaManager, Paciente paciente, Medico medico, Sala sala) {
+    private static void probarValidacionFechaPasado(CitaManager citaManager, Paciente paciente, Medico medico,
+            Sala sala) {
         try {
             citaManager.programarCita(paciente, medico, sala,
                     LocalDateTime.of(2020, 1, 1, 10, 0),
@@ -405,7 +461,8 @@ public class Main {
         }
     }
 
-    private static void probarValidacionCostoNegativo(CitaManager citaManager, Paciente paciente, Medico medico, Sala sala) {
+    private static void probarValidacionCostoNegativo(CitaManager citaManager, Paciente paciente, Medico medico,
+            Sala sala) {
         try {
             citaManager.programarCita(paciente, medico, sala,
                     LocalDateTime.of(2025, 3, 1, 10, 0),
@@ -416,7 +473,8 @@ public class Main {
         }
     }
 
-    private static void probarValidacionEspecialidadIncompatible(CitaManager citaManager, Paciente paciente, List<Medico> medicos, Hospital hospital) {
+    private static void probarValidacionEspecialidadIncompatible(CitaManager citaManager, Paciente paciente,
+            List<Medico> medicos, Hospital hospital) {
         try {
             // Intentar programar cardiólogo en sala de pediatría
             Medico cardiologo = obtenerMedicoPorEspecialidad(medicos, EspecialidadMedica.CARDIOLOGIA);

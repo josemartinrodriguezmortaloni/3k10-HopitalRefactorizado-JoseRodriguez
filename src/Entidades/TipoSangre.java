@@ -3,8 +3,8 @@ package Entidades;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@Getter
 @RequiredArgsConstructor
+@Getter
 public enum TipoSangre {
     A_POSITIVO("A+"),
     A_NEGATIVO("A-"),

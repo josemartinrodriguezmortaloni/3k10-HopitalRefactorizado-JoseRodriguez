@@ -4,35 +4,27 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Getter
-@Builder
-@ToString(exclude = {"medicos", "salas", "hospital"})
+@ToString(exclude = { "hospital", "medicos", "salas" })
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Departamento implements Serializable {
     @EqualsAndHashCode.Include
+    @NonNull
     final String nombre;
-    @NonNull final EspecialidadMedica especialidad;
+    @NonNull
+    final EspecialidadMedica especialidad;
     Hospital hospital;
-
     @Builder.Default
-    final List<Medico> medicos = new ArrayList<>();
-
+    List<Medico> medicos = new ArrayList<>();
     @Builder.Default
-    final List<Sala> salas = new ArrayList<>();
-
-    @Builder
-    private Departamento(String nombre, EspecialidadMedica especialidad, Hospital hospital, List<Medico> medicos, List<Sala> salas) {
-        this.nombre = ValidationUtils.validarStringNoVacio(nombre, "El nombre del departamento no puede ser nulo ni vacío");
-        this.especialidad = especialidad;
-        this.hospital = hospital;
-        this.medicos = medicos != null ? medicos : new ArrayList<>();
-        this.salas = salas != null ? salas : new ArrayList<>();
-    }
+    List<Sala> salas = new ArrayList<>();
 
     public void setHospital(Hospital hospital) {
         if (this.hospital != hospital) {
@@ -54,7 +46,11 @@ public class Departamento implements Serializable {
     }
 
     public Sala crearSala(String numero, String tipo) {
-        Sala sala = new Sala(numero, tipo, this);
+        Sala sala = Sala.builder()
+                .numero(numero)
+                .tipo(tipo)
+                .departamento(this)
+                .build();
         salas.add(sala);
         return sala;
     }
@@ -65,5 +61,13 @@ public class Departamento implements Serializable {
 
     public List<Sala> getSalas() {
         return Collections.unmodifiableList(salas);
+    }
+
+    private String validarString(String valor, String mensajeError) {
+        Objects.requireNonNull(valor, mensajeError);
+        if (valor.trim().isEmpty()) {
+            throw new IllegalArgumentException(mensajeError);
+        }
+        return valor;
     }
 }

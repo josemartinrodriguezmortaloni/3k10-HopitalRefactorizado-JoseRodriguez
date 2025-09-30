@@ -1,39 +1,98 @@
-package Entidades;
+package Servicio;
+
+import Entidades.Cita;
+import Entidades.Medico;
+import Entidades.Paciente;
+import Entidades.Sala;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * [HU-07] Programación de Citas
+ * [HU-08] Validación de Disponibilidad
+ * [HU-09] Validación de Especialidades
+ * [HU-10] Consulta de Citas
+ * [HU-11] Persistencia de Datos
+ *
+ * Gestor central del sistema de citas médicas.
+ * Implementa la lógica de negocio para programación, validación y consulta de
+ * citas.
+ *
+ * Criterios de Aceptación:
+ * - [HU-07] Programar citas vinculando paciente, médico y sala
+ * - [HU-08] Validar disponibilidad (2 horas mínimo entre citas)
+ * - [HU-09] Validar compatibilidad de especialidades
+ * - [HU-10] Consultas rápidas por paciente, médico o sala (O(1))
+ * - [HU-11] Guardar/cargar citas en formato CSV
+ *
+ * Reglas de Negocio:
+ * - RN-07.1: No programar citas en el pasado
+ * - RN-07.2: Costo debe ser positivo
+ * - RN-08.1: Ventana de 2 horas entre citas del mismo médico
+ * - RN-08.2: Ventana de 2 horas entre citas de la misma sala
+ * - RN-09.1: Especialidad del médico debe coincidir con departamento de sala
+ * - RN-10.1: Consultas deben usar índices para eficiencia
+ * - RN-11.1: Formato CSV estándar y predefinido
+ *
+ * @see CitaService
+ * @see Cita
+ * @see CitaException
+ */
 public class CitaManager implements CitaService {
     private final List<Cita> citas = new ArrayList<>();
     private final Map<Paciente, List<Cita>> citasPorPaciente = new ConcurrentHashMap<>();
     private final Map<Medico, List<Cita>> citasPorMedico = new ConcurrentHashMap<>();
     private final Map<Sala, List<Cita>> citasPorSala = new ConcurrentHashMap<>();
 
+    /**
+     * [HU-07] Programa una nueva cita médica.
+     * [HU-08] Valida disponibilidad de médico y sala.
+     * [HU-09] Valida compatibilidad de especialidades.
+     *
+     * @param paciente  El paciente que solicita la cita
+     * @param medico    El médico que atenderá la cita
+     * @param sala      La sala donde se realizará la cita
+     * @param fechaHora Fecha y hora programada
+     * @param costo     Costo de la consulta
+     * @return La cita creada y registrada
+     * @throws CitaException Si alguna validación falla
+     */
     @Override
     public Cita programarCita(Paciente paciente, Medico medico, Sala sala,
             LocalDateTime fechaHora, BigDecimal costo) throws CitaException {
 
+        // [HU-07] RN-07.1 y RN-07.2: Validar fecha futura y costo positivo
         validarCita(fechaHora, costo);
 
+        // [HU-08] RN-08.1: Validar disponibilidad del médico (ventana 2 horas)
         if (!esMedicoDisponible(medico, fechaHora)) {
             throw new CitaException("El médico no está disponible en la fecha y hora solicitadas.");
         }
 
+        // [HU-08] RN-08.2: Validar disponibilidad de la sala (ventana 2 horas)
         if (!esSalaDisponible(sala, fechaHora)) {
             throw new CitaException("La sala no está disponible en la fecha y hora solicitadas.");
         }
 
+        // [HU-09] RN-09.1: Validar compatibilidad de especialidades
         if (!medico.getEspecialidad().equals(sala.getDepartamento().getEspecialidad())) {
             throw new CitaException("La especialidad del médico no coincide con el departamento de la sala.");
         }
 
-        Cita cita = new Cita(paciente, medico, sala, fechaHora, costo);
+        Cita cita = Cita.builder()
+                .paciente(paciente)
+                .medico(medico)
+                .sala(sala)
+                .fechaHora(fechaHora)
+                .costo(costo)
+                .build();
         citas.add(cita);
 
         actualizarIndicePaciente(paciente, cita);

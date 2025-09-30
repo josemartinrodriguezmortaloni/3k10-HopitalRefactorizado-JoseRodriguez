@@ -9,31 +9,29 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-@Builder
-@ToString(exclude = {"departamentos", "pacientes"})
+@ToString(exclude = { "departamentos", "pacientes" })
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Hospital implements Serializable {
     @EqualsAndHashCode.Include
-    String nombre;
-    String direccion;
-    String telefono;
-
+    @NonNull
+    final String nombre;
+    @NonNull
+    final String direccion;
+    @NonNull
+    final String telefono;
     @Builder.Default
     List<Departamento> departamentos = new ArrayList<>();
-
     @Builder.Default
     List<Paciente> pacientes = new ArrayList<>();
 
-    @Builder
-    private Hospital(String nombre, String direccion, String telefono, List<Departamento> departamentos, List<Paciente> pacientes) {
-        this.nombre = ValidationUtils.validarStringNoVacio(nombre, "El nombre del hospital no puede ser nulo ni vacío");
-        this.direccion = ValidationUtils.validarStringNoVacio(direccion, "La dirección no puede ser nula ni vacía");
-        this.telefono = ValidationUtils.validarStringNoVacio(telefono, "El teléfono no puede ser nulo ni vacío");
-        this.departamentos = departamentos != null ? departamentos : new ArrayList<>();
-        this.pacientes = pacientes != null ? pacientes : new ArrayList<>();
-    }
-
+    /**
+     * [HU-01] Agrega un departamento al hospital.
+     * [HU-02] Establece relación bidireccional Hospital-Departamento.
+     *
+     * @param departamento El departamento a agregar
+     */
     public void agregarDepartamento(Departamento departamento) {
         if (departamento != null && !departamentos.contains(departamento)) {
             departamentos.add(departamento);
@@ -41,6 +39,12 @@ public class Hospital implements Serializable {
         }
     }
 
+    /**
+     * [HU-01] Registra un paciente en el hospital.
+     * [HU-04] Establece relación bidireccional Hospital-Paciente.
+     *
+     * @param paciente El paciente a registrar
+     */
     public void agregarPaciente(Paciente paciente) {
         if (paciente != null && !pacientes.contains(paciente)) {
             pacientes.add(paciente);

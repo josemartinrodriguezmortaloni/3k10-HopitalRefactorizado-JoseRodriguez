@@ -2,6 +2,7 @@ package Entidades;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import Servicio.CitaException;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,9 +10,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Getter
+@ToString(exclude = { "paciente", "medico", "sala" })
 @Builder
-@ToString
-@EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Cita implements Serializable {
     @NonNull
@@ -24,19 +24,12 @@ public class Cita implements Serializable {
     final LocalDateTime fechaHora;
     @NonNull
     final BigDecimal costo;
-
     @Setter
-    @NonNull
     @Builder.Default
     EstadoCita estado = EstadoCita.PROGRAMADA;
-
     @Setter
     @Builder.Default
     String observaciones = "";
-
-    // public void setObservaciones(String observaciones) {
-    // this.observaciones = observaciones != null ? observaciones : "";
-    // }
 
     public String toCsvString() {
         return String.format("%s,%s,%s,%s,%s,%s,%s",
@@ -80,10 +73,14 @@ public class Cita implements Serializable {
             throw new CitaException("Sala no encontrada: " + numeroSala);
         }
 
-        Cita cita = new Cita(paciente, medico, sala, fechaHora, costo);
-        cita.setEstado(estado);
-        cita.setObservaciones(observaciones);
-
-        return cita;
+        return Cita.builder()
+                .paciente(paciente)
+                .medico(medico)
+                .sala(sala)
+                .fechaHora(fechaHora)
+                .costo(costo)
+                .estado(estado)
+                .observaciones(observaciones)
+                .build();
     }
 }

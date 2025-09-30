@@ -1,4 +1,4 @@
-package Entidades;
+package Servicio;
 
 public class CitaException extends Exception {
 

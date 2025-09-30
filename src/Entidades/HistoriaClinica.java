@@ -10,23 +10,22 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
-@ToString(exclude = {"diagnosticos", "tratamientos", "alergias"})
+@ToString(exclude = { "paciente" })
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class HistoriaClinica implements Serializable {
-    String numeroHistoria;
-    @NonNull Paciente paciente;
-    LocalDateTime fechaCreacion;
-    List<String> diagnosticos = new ArrayList<>();
-    List<String> tratamientos = new ArrayList<>();
-    List<String> alergias = new ArrayList<>();
+    @NonNull
+    final Paciente paciente;
+    @Builder.Default
+    final LocalDateTime fechaCreacion = LocalDateTime.now();
+    @Builder.Default
+    final List<String> diagnosticos = new ArrayList<>();
+    @Builder.Default
+    final List<String> tratamientos = new ArrayList<>();
+    @Builder.Default
+    final List<String> alergias = new ArrayList<>();
 
-    public HistoriaClinica(Paciente paciente) {
-        this.paciente = paciente;
-        this.fechaCreacion = LocalDateTime.now();
-        this.numeroHistoria = generarNumeroHistoria();
-    }
-
-    private String generarNumeroHistoria() {
+    public String getNumeroHistoria() {
         return "HC-" + paciente.getDni() + "-" + fechaCreacion.getYear();
     }
 
